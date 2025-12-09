@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Seeker Dashboard | Job Match Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .side-panel {
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .side-panel h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1581BF;
+            border-bottom: 2px solid #F6B1CE;
+            padding-bottom: 0.5rem;
+        }
+
+        .panel-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .panel-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .panel-menu a:hover,
+        .panel-menu a.active {
+            background: #F6B1CE;
+            color: white;
+        }
+
+        .panel-menu a .icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .dashboard-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-card h3 {
+            margin-bottom: 1rem;
+            color: #1581BF;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1581BF;
+        }
+
+        .glassy-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: rgba(21,129,191,0.08);
+            border: 1px solid rgba(21,129,191,0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .glassy-input, .glassy-select {
+            padding: 0.6rem 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(21,129,191,0.35);
+            background: rgba(255,255,255,0.6);
+            color: #222;
+            outline: none;
+        }
+        .glassy-button {
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(21,129,191,0.4);
+            background: rgba(21,129,191,0.2);
+            color: #0b4d72;
+            cursor: pointer;
+        }
+        .glassy-button:hover { background: rgba(21,129,191,0.3); }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+
+            .side-panel {
+                width: 100%;
+                position: relative;
+                top: 0;
+            }
+
+            .panel-menu {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .panel-menu a {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <custom-navbar></custom-navbar>
+    
+    <main>
+        <div class="container">
+            <div class="dashboard-layout">
+                <!-- Side Panel -->
+                <aside class="side-panel">
+                    <h2>Quick Actions</h2>
+                    <div class="stats-section">
+                        <div class="stat-item">
+                            <span class="stat-label">Applied Jobs</span>
+                            <span class="stat-value" id="applied-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Accepted Jobs</span>
+                            <span class="stat-value" id="accepted-count">0</span>
+                        </div>
+                    </div>
+                    <ul class="panel-menu">
+                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
+                            <span class="icon">📊</span>
+                            <span>Dashboard</span>
+                        </a></li>
+                        <li><a href="#browse-jobs" class="nav-link" data-section="browse-jobs">
+                            <span class="icon">🔍</span>
+                            <span>Browse Jobs</span>
+                        </a></li>
+                        <li><a href="#applications" class="nav-link" data-section="applications">
+                            <span class="icon">🧾</span>
+                            <span>My Applications</span>
+                        </a></li>
+                        <li><a href="#resume" class="nav-link" data-section="resume">
+                            <span class="icon">📄</span>
+                            <span>Resume</span>
+                        </a></li>
+                    </ul>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Dashboard Section -->
+                    <div id="dashboard" class="content-section active">
+                        <div class="dashboard-header">
+                            <h1>Job Seeker Dashboard</h1>
+                            <p>Welcome back! Manage your applications and profile here.</p>
+                        </div>
+                        
+                        <div class="dashboard-content">
+                            <div class="dashboard-card">
+                                <h3>My Applications</h3>
+                                <p>View and track your job applications.</p>
+                                <button onclick="showSection('applications')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #1581BF; color: white; border: none; border-radius: 4px; cursor: pointer;">Go to My Applications</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Browse Jobs Section -->
+                    <div id="browse-jobs" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>Browse Jobs</h1>
+                            <p>Explore available jobs. Click a job to view details and apply.</p>
+                            <form id="seekerSearchForm" class="glassy-form">
+                                <input type="text" id="seek_title" class="glassy-input" placeholder="Title">
+                                <input type="text" id="seek_location" class="glassy-input" placeholder="Location">
+                                <input type="text" id="seek_category" class="glassy-input" placeholder="Category">
+                                <input type="number" id="seek_min_salary" class="glassy-input" placeholder="Min Salary" step="0.01">
+                                <input type="number" id="seek_max_salary" class="glassy-input" placeholder="Max Salary" step="0.01">
+                                <select id="seek_work_type" class="glassy-select">
+                                    <option value="">Work Type</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Onsite">Onsite</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                                <button type="submit" class="glassy-button">Search</button>
+                            </form>
+                        </div>
+                        <div class="dashboard-card">
+                            <job-grid id="seekerJobGrid"></job-grid>
+                        </div>
+                    </div>
+
+                    <!-- My Applications Section -->
+                    <div id="applications" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>My Applications</h1>
+                            <p>View and manage your job applications.</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Applied</h3>
+                            <div id="applied-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;"></div>
+                            <div id="applied-empty" style="display:none; text-align:center; color:#666; padding: 1rem;">No applied applications.</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Accepted</h3>
+                            <div id="accepted-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;"></div>
+                            <div id="accepted-empty" style="display:none; text-align:center; color:#666; padding: 1rem;">No accepted applications.</div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- Resume Section -->
+                    <div id="resume" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>Resume</h1>
+                            <p>Insert your resume to use when applying to jobs.</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Add Resume</h3>
+                            <form id="resumeForm" style="display:grid; gap: 0.75rem; grid-template-columns: 1fr; max-width: 600px;">
+                                <input type="text" id="resume_title" placeholder="Resume Title" required style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px;">
+                                <textarea id="resume_summary" placeholder="Summary" rows="4" required style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                                <input type="url" id="resume_file_url" placeholder="File URL (e.g., link to PDF)" required style="padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px;">
+                                <button type="submit" id="resumeSubmitBtn" style="padding: 0.6rem 1rem; background: #1581BF; color: white; border-radius: 6px;">Save Resume</button>
+                                <div id="resumeMsg" class="message"></div>
+                            </form>
+                            <p id="resumeInfo" style="margin-top: 0.75rem; color:#666;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+
+    <job-details-seeker id="jobDetailsSeeker"></job-details-seeker>
+    
+    <script type="module" src="js/comp/navbar.js"></script>
+    <script type="module" src="js/comp/footer.js"></script>
+    <script type="module" src="js/comp/job-grid.js"></script>
+    <script type="module" src="js/comp/job-card.js"></script>
+    <script type="module" src="js/comp/job-details-seeker.js"></script>
+    <script type="module" src="js/comp/job-applied-card.js"></script>
+    <script type="module">
+        import { supabase } from "./js/core/supabase-client.js";
+        import { countApplicationsByUser, getAppliedApplicationsByUser, getAcceptedApplicationsByUser, insertResumeByUser, updateApplicationToCancelled, getResumeByUser } from "./js/db-logic/seeker-handler.js";
+        import { getJobWithImagesByJobId, getJobsByFilter } from "./js/db-logic/job-handler.js";
+
+        // Navigation functionality
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const section = document.getElementById(sectionId);
+            if (section) section.classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+        }
+
+            document.addEventListener('DOMContentLoaded', async () => {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) showSection(section);
+                });
+            });
+
+            // Make showSection available globally for onclick handlers
+            window.showSection = showSection;
+
+            loadCounts();
+
+            // Setup Resume form submission
+            const resumeForm = document.getElementById('resumeForm');
+            if (resumeForm) {
+                resumeForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const msg = document.getElementById('resumeMsg');
+                    const btn = document.getElementById('resumeSubmitBtn');
+                    msg.textContent = '';
+                    msg.className = 'message';
+                    btn.disabled = true;
+                    btn.textContent = 'Saving...';
+                    try {
+                        const userStr = localStorage.getItem('auth_user');
+                        if (!userStr) throw new Error('Please log in as a job seeker.');
+                        const user = JSON.parse(userStr);
+                        const p_seeker_id = user.id;
+                        const p_title = document.getElementById('resume_title').value.trim();
+                        const p_summary = document.getElementById('resume_summary').value.trim();
+                        const p_file_url = document.getElementById('resume_file_url').value.trim();
+
+                        const result = await insertResumeByUser({ p_file_url, p_seeker_id, p_summary, p_title });
+                        if (!result.success) throw new Error(result.error || 'Failed to save resume');
+
+                        const id = Array.isArray(result.data) ? result.data[0]?.insert_resume_by_user_id : null;
+                        document.getElementById('resumeInfo').textContent = id ? `Saved resume ID: ${id}` : 'Resume saved.';
+                        if (id) localStorage.setItem('last_resume_id', id);
+                        msg.textContent = 'Resume saved successfully.';
+                        msg.classList.add('success');
+                        resumeForm.reset();
+                    } catch (err) {
+                        console.error('Resume save error:', err);
+                        msg.textContent = err.message || 'Error saving resume.';
+                        msg.classList.add('error');
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = 'Save Resume';
+                    }
+                });
+            }
+
+            const jobDetailsSeeker = document.getElementById('jobDetailsSeeker');
+            document.addEventListener('view-job', async (e) => {
+                const { jobId } = e.detail || {};
+                try {
+                    const res = await getJobWithImagesByJobId(jobId);
+                    if (res.success && res.data) {
+                        jobDetailsSeeker.data = res.data;
+                        jobDetailsSeeker.open();
+                    } else {
+                        alert('Failed to load job details.');
+                    }
+                } catch (err) {
+                    console.error('Error fetching job details:', err);
+                    alert('Failed to load job details.');
+                }
+            });
+
+            // Search in browse jobs
+            const seekerSearchForm = document.getElementById('seekerSearchForm');
+            const seekerJobGrid = document.getElementById('seekerJobGrid');
+            seekerSearchForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const p_title = document.getElementById('seek_title').value.trim() || null;
+                const p_location = document.getElementById('seek_location').value.trim() || null;
+                const p_category = document.getElementById('seek_category').value.trim() || null;
+                const minVal = document.getElementById('seek_min_salary').value;
+                const maxVal = document.getElementById('seek_max_salary').value;
+                const p_min_salary = minVal !== '' ? parseFloat(minVal) : null;
+                const p_max_salary = maxVal !== '' ? parseFloat(maxVal) : null;
+                const wtVal = document.getElementById('seek_work_type').value;
+                const p_work_type = wtVal ? wtVal : null;
+                const p_limit = 12;
+                const p_offset = 0;
+
+                const idsRes = await getJobsByFilter({ p_title, p_location, p_category, p_min_salary, p_max_salary, p_work_type, p_limit, p_offset });
+                if (!idsRes.success) {
+                    alert(idsRes.error || 'Search failed');
+                    return;
+                }
+                const jobs = [];
+                for (const row of idsRes.data) {
+                    const det = await getJobWithImagesByJobId(row.id);
+                    if (det.success && det.data) jobs.push(det.data);
+                }
+                if (seekerJobGrid) seekerJobGrid.data = jobs;
+            });
+
+            // Prefetch and store resume id for current user
+            try {
+                const userStr = localStorage.getItem('auth_user');
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    const r = await getResumeByUser(user.id);
+                    const first = (r.success && Array.isArray(r.data) && r.data.length) ? r.data[0] : null;
+                    if (first?.id) {
+                        localStorage.setItem('last_resume_id', first.id);
+                    }
+                }
+            } catch (err) {
+                console.error('Prefetch resume error:', err);
+            }
+
+            // Initial load of applications lists
+            loadApplicationsLists();
+        });
+
+        async function loadCounts() {
+            try {
+                const userStr = localStorage.getItem("auth_user");
+                if (!userStr) return;
+                const user = JSON.parse(userStr);
+                const seekerId = user.id;
+
+                // Applied count
+                const appliedResult = await countApplicationsByUser(seekerId);
+                const appliedCountEl = document.getElementById('applied-count');
+                if (appliedCountEl) {
+                    appliedCountEl.textContent = String(appliedResult.data || 0);
+                }
+
+                // Accepted count
+                const acceptedResult = await getAcceptedApplicationsByUser(seekerId);
+                const acceptedCountEl = document.getElementById('accepted-count');
+                if (acceptedCountEl) {
+                    acceptedCountEl.textContent = String((acceptedResult.data || []).length);
+                }
+            } catch (err) {
+                console.error("Error loading application counts:", err);
+            }
+        }
+
+        async function loadApplicationsLists() {
+            try {
+                const userStr = localStorage.getItem('auth_user');
+                if (!userStr) return;
+                const user = JSON.parse(userStr);
+                const seekerId = user.id;
+
+                // Applied
+                const appliedRes = await getAppliedApplicationsByUser(seekerId);
+                const appliedList = document.getElementById('applied-list');
+                const appliedEmpty = document.getElementById('applied-empty');
+                if (appliedList) appliedList.innerHTML = '';
+                const applied = appliedRes.success ? (appliedRes.data || []) : [];
+                if (appliedEmpty) appliedEmpty.style.display = applied.length === 0 ? 'block' : 'none';
+                for (const app of applied) {
+                    const jobRes = await getJobWithImagesByJobId(app.job_id);
+                    const cardEl = document.createElement('job-applied-card');
+                    cardEl.setAttribute('app-id', app.id);
+                    cardEl.setAttribute('job-id', app.job_id);
+                    if (jobRes.success && jobRes.data) {
+                        cardEl.data = jobRes.data;
+                    }
+                    appliedList.appendChild(cardEl);
+                }
+
+                // Accepted
+                const acceptedRes = await getAcceptedApplicationsByUser(seekerId);
+                const acceptedList = document.getElementById('accepted-list');
+                const acceptedEmpty = document.getElementById('accepted-empty');
+                if (acceptedList) acceptedList.innerHTML = '';
+                const accepted = acceptedRes.success ? (acceptedRes.data || []) : [];
+                if (acceptedEmpty) acceptedEmpty.style.display = accepted.length === 0 ? 'block' : 'none';
+                accepted.forEach(app => {
+                    const card = document.createElement('div');
+                    card.className = 'application-card';
+                    card.style.border = '1px solid #ddd';
+                    card.style.borderRadius = '8px';
+                    card.style.padding = '0.75rem';
+                    card.innerHTML = `
+                        <div><strong>Application ID:</strong> ${app.id}</div>
+                        <div><strong>Job ID:</strong> ${app.job_id}</div>
+                        <div><strong>Status:</strong> ${app.status}</div>
+                        <div><strong>Accepted At:</strong> ${app.updated_at || ''}</div>
+                    `;
+                    acceptedList.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error loading applications lists:', err);
+            }
+        }
+
+        document.addEventListener('cancel-application', async (e) => {
+            const { appId } = e.detail || {};
+            if (!appId) return;
+            try {
+                const res = await updateApplicationToCancelled(appId);
+                if (!res.success) throw new Error(res.error || 'Failed to cancel');
+                loadCounts();
+                loadApplicationsLists();
+            } catch (err) {
+                console.error('Cancel error:', err);
+                alert(err.message || 'Error cancelling application');
+            }
+        });
+    </script>
+</body>
+</html>

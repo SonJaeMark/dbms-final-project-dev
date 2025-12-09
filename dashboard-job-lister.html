@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Lister Dashboard | Job Match Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .side-panel {
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .side-panel h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1581BF;
+            border-bottom: 2px solid #F6B1CE;
+            padding-bottom: 0.5rem;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1581BF;
+        }
+
+        .panel-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .panel-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .panel-menu a:hover,
+        .panel-menu a.active {
+            background: #F6B1CE;
+            color: white;
+        }
+
+        .panel-menu a .icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+        
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-card h3 {
+            margin-bottom: 1rem;
+            color: #1581BF;
+        }
+
+        .placeholder-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            color: #666;
+        }
+
+        .placeholder-section h3 {
+            margin-bottom: 1rem;
+            color: #1581BF;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .status-filter {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.6rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: 'Open Sans', sans-serif;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-filter:hover {
+            border-color: #1581BF;
+        }
+
+        .status-filter:focus {
+            outline: none;
+            border-color: #1581BF;
+            box-shadow: 0 0 0 3px rgba(21, 129, 191, 0.1);
+        }
+
+        .refresh-btn {
+            padding: 0.6rem 1.5rem;
+            background: #1581BF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .refresh-btn:hover {
+            background: #0f6a9f;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+
+            .side-panel {
+                width: 100%;
+                position: relative;
+                top: 0;
+            }
+
+            .panel-menu {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .panel-menu a {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <custom-navbar></custom-navbar>
+    
+    <main>
+        <div class="container">
+            <div class="dashboard-layout">
+                <!-- Side Panel -->
+                <aside class="side-panel">
+                    <h2>Quick Actions</h2>
+                    
+                    <!-- Stats Section -->
+                    <div class="stats-section">
+                        <div class="stat-item">
+                            <span class="stat-label">Drafted Jobs</span>
+                            <span class="stat-value" id="drafted-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Published Jobs</span>
+                            <span class="stat-value" id="published-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">For Approval</span>
+                            <span class="stat-value" id="for-approval-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Applicants</span>
+                            <span class="stat-value" id="applicants-count">0</span>
+                        </div>
+                    </div>
+
+                    <ul class="panel-menu">
+                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
+                            <span class="icon">📊</span>
+                            <span>Dashboard</span>
+                        </a></li>
+                        <li><a href="#post-job" class="nav-link" data-section="post-job">
+                            <span class="icon">➕</span>
+                            <span>Post New Job</span>
+                        </a></li>
+                        <li><a href="#my-jobs" class="nav-link" data-section="my-jobs">
+                            <span class="icon">📋</span>
+                            <span>My Job Listings</span>
+                        </a></li>
+                        <li><a href="#applications" class="nav-link" data-section="applications">
+                            <span class="icon">📥</span>
+                            <span>Applications</span>
+                        </a></li>
+                    </ul>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Dashboard Section -->
+                    <div id="dashboard" class="content-section active">
+                        <div class="dashboard-header">
+                            <h1>Job Lister Dashboard</h1>
+                            <p>Manage your job postings and applications here.</p>
+                        </div>
+                        
+                        <div class="dashboard-content">
+                            <div class="dashboard-card">
+                                <h3>Post New Job</h3>
+                                <p>Create and publish a new job listing.</p>
+                                <button onclick="showSection('post-job')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #1581BF; color: white; border: none; border-radius: 4px; cursor: pointer;">Create Job</button>
+                            </div>
+                            
+                            <div class="dashboard-card">
+                                <h3>My Job Listings</h3>
+                                <p>View and manage your active job postings.</p>
+                                <button onclick="showSection('my-jobs')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #1581BF; color: white; border: none; border-radius: 4px; cursor: pointer;">View Listings</button>
+                            </div>
+                            
+                            <div class="dashboard-card">
+                                <h3>Applications</h3>
+                                <p>Review applications for your job postings.</p>
+                                <button onclick="showSection('applications')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #1581BF; color: white; border: none; border-radius: 4px; cursor: pointer;">View Applications</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Job Section -->
+                    <div id="post-job" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>Post New Job</h1>
+                            <p>Create a new job posting to attract candidates.</p>
+                        </div>
+                        <job-form id="jobForm"></job-form>
+                    </div>
+
+                    <!-- My Jobs Section -->
+                    <div id="my-jobs" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>My Job Listings</h1>
+                            <p>Manage your job postings.</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Filter by Status</h3>
+                            <div class="filter-controls">
+                                <label for="status-filter">Status</label>
+                                <select id="status-filter" class="status-filter">
+                                    <option value="draft">Drafted Jobs</option>
+                                    <option value="published">Published Jobs</option>
+                                    <option value="pending_approval">For Approval</option>
+                                </select>
+                                <button id="refresh-my-jobs" class="refresh-btn">Refresh</button>
+                            </div>
+                            <div id="my-jobs-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; width: 100%; max-width: 100%; overflow-x: hidden;"></div>
+                            <div id="my-jobs-empty" style="display:none; text-align:center; color:#666; padding: 2rem;">No jobs found for selected status.</div>
+                        </div>
+                    </div>
+
+                    <!-- Applications Section -->
+                    <div id="applications" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>Applications</h1>
+                            <p>Review applications for your job postings.</p>
+                        </div>
+                        <div class="placeholder-section">
+                            <h3>Applications</h3>
+                            <p>This section will show a list of jobs with their applicants.</p>
+                            <p style="margin-top: 1rem; font-style: italic;">Coming soon...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <!-- Job Details Modal -->
+    <job-details id="jobDetailsModal"></job-details>
+    
+    <script type="module" src="js/comp/navbar.js"></script>
+    <script type="module" src="js/comp/footer.js"></script>
+    <script type="module" src="js/comp/job-form.js"></script>
+    <script type="module" src="js/comp/job-card-lister.js"></script>
+    <script type="module" src="js/comp/job-details.js"></script>
+    <script type="module">
+        import { supabase } from "./js/core/supabase-client.js";
+
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+            }
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+        }
+
+        // Setup navigation links
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) {
+                        showSection(section);
+                    }
+                });
+            });
+
+            // Listen for job created event
+            const jobForm = document.getElementById('jobForm');
+            if (jobForm) {
+                jobForm.addEventListener('job-created', (e) => {
+                    console.log('Job created:', e.detail);
+                    // Refresh counts or show success message
+                    loadJobCounts();
+                    // Optionally switch to my-jobs section
+                    // showSection('my-jobs');
+                });
+            }
+
+            // Load initial counts
+            loadJobCounts();
+
+            // Setup My Jobs
+            const statusSelect = document.getElementById('status-filter');
+            const refreshBtn = document.getElementById('refresh-my-jobs');
+            const loadInitial = () => {
+                const status = statusSelect?.value || 'draft';
+                loadMyJobs(status);
+            };
+            statusSelect?.addEventListener('change', loadInitial);
+            refreshBtn?.addEventListener('click', loadInitial);
+            loadInitial();
+
+            // Make showSection available globally for onclick handlers
+            window.showSection = showSection;
+
+            // Setup job details modal
+            const jobDetailsModal = document.getElementById('jobDetailsModal');
+            
+            // Handle view-job event from job cards
+            document.addEventListener('view-job', async (e) => {
+                const { jobId, jobData } = e.detail;
+                if (jobDetailsModal && jobData) {
+                    jobDetailsModal.data = jobData;
+                    jobDetailsModal.open();
+                } else if (jobDetailsModal && jobId) {
+                    // If jobData is not provided, fetch it
+                    try {
+                        const userStr = localStorage.getItem("auth_user");
+                        if (!userStr) return;
+                        const user = JSON.parse(userStr);
+                        
+                        // Try to get job from any status
+                        const statuses = ['draft', 'published', 'pending_approval'];
+                        let jobData = null;
+                        
+                        for (const status of statuses) {
+                            const { data, error } = await supabase.rpc('get_all_jobs_by_status_and_user_id', {
+                                p_status: status,
+                                p_user_id: user.id
+                            });
+                            
+                            if (!error && data) {
+                                const job = data.find(j => j.job_id === jobId);
+                                if (job) {
+                                    jobData = {
+                                        id: job.job_id,
+                                        title: job.title,
+                                        description: job.description,
+                                        location: job.location,
+                                        images: job.images || [],
+                                        rate_amount: job.rate_amount,
+                                        rate_type: job.rate_type,
+                                        salary_notes: job.salary_notes,
+                                        created_at: job.created_at,
+                                        updated_at: job.updated_at,
+                                        category: job.category,
+                                        work_type: job.work_type,
+                                        work_schedule: job.work_schedule,
+                                        vacancies_available: job.vacancies_available,
+                                        required_skills: job.required_skills,
+                                        status: job.status
+                                    };
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (jobData) {
+                            jobDetailsModal.data = jobData;
+                            jobDetailsModal.open();
+                        } else {
+                            alert('Job not found.');
+                        }
+                    } catch (err) {
+                        console.error('Error fetching job:', err);
+                        alert('Failed to load job details.');
+                    }
+                }
+            });
+
+            // Handle edit-job event
+            document.addEventListener('edit-job', (e) => {
+                const { jobId, jobData } = e.detail;
+                // For now, just show an alert - you can implement an edit form/modal later
+                alert(`Edit job functionality for job ID: ${jobId}\nThis feature can be implemented with a job edit form.`);
+            });
+
+            // Handle job-deleted event
+            document.addEventListener('job-deleted', (e) => {
+                const { jobId } = e.detail;
+                console.log('Job deleted:', jobId);
+                // Refresh counts and reload jobs
+                loadJobCounts();
+                const statusSelect = document.getElementById('status-filter');
+                if (statusSelect) {
+                    const status = statusSelect.value || 'draft';
+                    loadMyJobs(status);
+                }
+            });
+        });
+
+        // Load job counts from Supabase RPC
+        async function loadJobCounts() {
+            try {
+                const userStr = localStorage.getItem("auth_user");
+                if (!userStr) return;
+                const user = JSON.parse(userStr);
+
+                const [
+                    { data: draftData, error: draftErr },
+                    { data: publishedData, error: publishedErr },
+                    { data: pendingData, error: pendingErr }
+                ] = await Promise.all([
+                    supabase.rpc('get_all_jobs_by_status_and_user_id', { p_status: 'draft', p_user_id: user.id }),
+                    supabase.rpc('get_all_jobs_by_status_and_user_id', { p_status: 'published', p_user_id: user.id }),
+                    supabase.rpc('get_all_jobs_by_status_and_user_id', { p_status: 'pending_approval', p_user_id: user.id })
+                ]);
+
+                if (draftErr) console.error('Draft count error:', draftErr);
+                if (publishedErr) console.error('Published count error:', publishedErr);
+                if (pendingErr) console.error('Pending approval count error:', pendingErr);
+
+                const draftedCount = Array.isArray(draftData) ? draftData.length : 0;
+                const publishedCount = Array.isArray(publishedData) ? publishedData.length : 0;
+                const forApprovalCount = Array.isArray(pendingData) ? pendingData.length : 0;
+
+                document.getElementById('drafted-count').textContent = String(draftedCount);
+                document.getElementById('published-count').textContent = String(publishedCount);
+                document.getElementById('for-approval-count').textContent = String(forApprovalCount);
+                document.getElementById('applicants-count').textContent = '0';
+            } catch (err) {
+                console.error('Error loading counts:', err);
+            }
+        }
+
+        async function loadMyJobs(status) {
+            try {
+                const grid = document.getElementById('my-jobs-grid');
+                const emptyEl = document.getElementById('my-jobs-empty');
+                if (!grid) return;
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; padding:2rem;">Loading...</div>';
+
+                const userStr = localStorage.getItem("auth_user");
+                if (!userStr) {
+                    grid.innerHTML = '';
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'Please log in to view your jobs.';
+                    return;
+                }
+                const user = JSON.parse(userStr);
+
+                const { data, error } = await supabase.rpc('get_all_jobs_by_status_and_user_id', {
+                    p_status: status,
+                    p_user_id: user.id
+                });
+
+                if (error) {
+                    console.error(error);
+                    grid.innerHTML = '';
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'Failed to load jobs.';
+                    return;
+                }
+
+                const jobs = Array.isArray(data) ? data : [];
+                grid.innerHTML = '';
+                if (jobs.length === 0) {
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'No jobs found for selected status.';
+                    return;
+                }
+                emptyEl.style.display = 'none';
+
+                jobs.forEach((job) => {
+                    const card = document.createElement('job-card-lister');
+                    const mapped = {
+                        id: job.job_id,
+                        title: job.title,
+                        description: job.description,
+                        location: job.location,
+                        images: job.images || [],
+                        rate_amount: job.rate_amount,
+                        rate_type: job.rate_type,
+                        salary_notes: job.salary_notes,
+                        created_at: job.created_at,
+                        updated_at: job.updated_at,
+                        category: job.category,
+                        work_type: job.work_type,
+                        work_schedule: job.work_schedule,
+                        vacancies_available: job.vacancies_available,
+                        required_skills: job.required_skills,
+                        status: job.status
+                    };
+                    card.data = mapped;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error loading my jobs:', err);
+                const grid = document.getElementById('my-jobs-grid');
+                const emptyEl = document.getElementById('my-jobs-empty');
+                if (grid) grid.innerHTML = '';
+                if (emptyEl) {
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'Error loading jobs.';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

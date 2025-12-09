@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Job Match Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .side-panel {
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .side-panel h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1581BF;
+            border-bottom: 2px solid #F6B1CE;
+            padding-bottom: 0.5rem;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1581BF;
+        }
+
+        .panel-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .panel-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .panel-menu a:hover,
+        .panel-menu a.active {
+            background: #F6B1CE;
+            color: white;
+        }
+
+        .panel-menu a .icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .dashboard-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-card h3 {
+            margin-bottom: 1rem;
+            color: #1581BF;
+        }
+
+        .dashboard-card button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #1581BF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .dashboard-card button:hover {
+            background: #0f6a9f;
+        }
+
+        .refresh-btn {
+            padding: 0.6rem 1.5rem;
+            background: #1581BF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .refresh-btn:hover {
+            background: #0f6a9f;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .admin-job-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .admin-job-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #1581BF;
+        }
+
+        .admin-job-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1581BF;
+            font-size: 1.2rem;
+        }
+
+        .admin-job-card .job-info {
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .admin-job-card .job-info div {
+            margin-bottom: 0.25rem;
+        }
+
+        .admin-job-card .job-description {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .admin-job-card .job-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .admin-job-card .approve-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .admin-job-card .approve-btn:hover {
+            background: #218838;
+        }
+
+        .admin-job-card .reject-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .admin-job-card .reject-btn:hover {
+            background: #c82333;
+        }
+
+        .admin-job-card .view-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: #1581BF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .admin-job-card .view-btn:hover {
+            background: #0f6a9f;
+        }
+
+        .admin-job-card button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+
+            .side-panel {
+                width: 100%;
+                position: relative;
+                top: 0;
+            }
+
+            .panel-menu {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .panel-menu a {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <custom-navbar></custom-navbar>
+    
+    <main>
+        <div class="container">
+            <div class="dashboard-layout">
+                <!-- Side Panel -->
+                <aside class="side-panel">
+                    <h2>Admin Panel</h2>
+                    
+                    <!-- Stats Section -->
+                    <div class="stats-section">
+                        <div class="stat-item">
+                            <span class="stat-label">Listers</span>
+                            <span class="stat-value" id="listers-count">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Seekers</span>
+                            <span class="stat-value" id="seekers-count">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Pending for Approval</span>
+                            <span class="stat-value" id="pending-count">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Published Jobs</span>
+                            <span class="stat-value" id="published-count">-</span>
+                        </div>
+                    </div>
+
+                    <ul class="panel-menu">
+                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
+                            <span class="icon">📊</span>
+                            <span>Dashboard</span>
+                        </a></li>
+                        <li><a href="#users" class="nav-link" data-section="users">
+                            <span class="icon">👥</span>
+                            <span>User Management</span>
+                        </a></li>
+                        <li><a href="#jobs" class="nav-link" data-section="jobs">
+                            <span class="icon">💼</span>
+                            <span>Job Management</span>
+                        </a></li>
+                    </ul>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Dashboard Section -->
+                    <div id="dashboard" class="content-section active">
+                        <div class="dashboard-header">
+                            <h1>Admin Dashboard</h1>
+                            <p>Manage users, jobs, and platform settings.</p>
+                        </div>
+                        
+                        <div class="dashboard-content">
+                            <div class="dashboard-card">
+                                <h3>User Management</h3>
+                                <p>View and manage all registered users.</p>
+                                <button onclick="showSection('users')">Manage Users</button>
+                            </div>
+                            
+                            <div class="dashboard-card">
+                                <h3>Job Management</h3>
+                                <p>Monitor and manage all job postings.</p>
+                                <button onclick="showSection('jobs')">Manage Jobs</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Management Section -->
+                    <div id="users" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>User Management</h1>
+                            <p>View and manage all registered users.</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <div style="display:flex; gap: 0.75rem; align-items:center; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <input id="user-search" type="text" placeholder="Search by ID or email" style="flex:1; min-width: 240px; padding: 0.6rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+                                <button id="user-search-btn" class="refresh-btn">Search</button>
+                                <button id="user-refresh-btn" class="refresh-btn" style="background:#6c757d;">Refresh</button>
+                            </div>
+                            <div id="user-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;"></div>
+                            <div id="user-empty" style="display:none; text-align:center; color:#666; padding: 2rem;">No users found.</div>
+                            <div id="user-pagination" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem;">
+                                <button id="user-prev" class="refresh-btn" style="background:#6c757d;">Prev</button>
+                                <div id="user-page-info" style="color:#666;">Page 1</div>
+                                <button id="user-next" class="refresh-btn">Next</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Management Section -->
+                    <div id="jobs" class="content-section">
+                        <div class="dashboard-header">
+                            <h1>Job Management</h1>
+                            <p>Monitor and manage all job postings.</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Pending Approval Jobs</h3>
+                            <div style="display:flex; gap: 0.75rem; align-items:center; margin-bottom: 1rem;">
+                                <button id="refresh-pending-jobs" class="refresh-btn">Refresh</button>
+                            </div>
+                            <div id="pending-jobs-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;"></div>
+                            <div id="pending-jobs-empty" style="display:none; text-align:center; color:#666; padding: 2rem;">No pending jobs for approval.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <!-- Job Details Modal -->
+    <job-details id="jobDetailsModal"></job-details>
+    
+    <script type="module" src="js/comp/navbar.js"></script>
+    <script type="module" src="js/comp/footer.js"></script>
+    <script type="module" src="js/comp/job-details.js"></script>
+    <script type="module">
+        import { supabase } from "./js/core/supabase-client.js";
+        import { getAllPendingApprovalJobs, updatePendingJobToPublished, updatePendingJobToRejected, getActiveUsersPaginated, findUserByIdOrEmail, deactivateUserById, updateUserPasswordById } from "./js/db-logic/admin-handler.js";
+        import { formatSalary } from "./js/db-logic/job-handler.js";
+        import { insertNotification } from "./js/db-logic/notification-handler.js";
+        import { hashPassword } from "./js/security/password.js";
+
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+            }
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+        }
+
+        // Setup navigation links
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) {
+                        showSection(section);
+                    }
+                });
+            });
+
+            // Make showSection available globally for onclick handlers
+            window.showSection = showSection;
+
+            // Load admin stats
+            loadAdminStats();
+
+            // Setup Job Management
+            const refreshPendingBtn = document.getElementById('refresh-pending-jobs');
+            if (refreshPendingBtn) {
+                refreshPendingBtn.addEventListener('click', loadPendingJobs);
+            }
+            
+            // Load pending jobs when jobs section is shown
+            const jobsSection = document.getElementById('jobs');
+            if (jobsSection) {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (jobsSection.classList.contains('active')) {
+                                loadPendingJobs();
+                            }
+                        }
+                    });
+                });
+                observer.observe(jobsSection, { attributes: true });
+            }
+
+            // Setup User Management
+            setupUserManagement();
+            // Load users initially
+            loadUsers();
+        });
+
+        // Load pending approval jobs
+        async function loadPendingJobs() {
+            try {
+                const grid = document.getElementById('pending-jobs-grid');
+                const emptyEl = document.getElementById('pending-jobs-empty');
+                if (!grid) return;
+                
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; padding:2rem;">Loading...</div>';
+
+                const result = await getAllPendingApprovalJobs();
+
+                if (!result.success) {
+                    console.error('Error loading pending jobs:', result.error);
+                    grid.innerHTML = '';
+                    if (emptyEl) {
+                        emptyEl.style.display = 'block';
+                        emptyEl.textContent = 'Failed to load pending jobs.';
+                    }
+                    return;
+                }
+
+                const jobs = result.data || [];
+                grid.innerHTML = '';
+
+                if (jobs.length === 0) {
+                    if (emptyEl) {
+                        emptyEl.style.display = 'block';
+                        emptyEl.textContent = 'No pending jobs for approval.';
+                    }
+                    return;
+                }
+
+                if (emptyEl) {
+                    emptyEl.style.display = 'none';
+                }
+
+                // Store jobs in a map for easy access
+                window.pendingJobsMap = {};
+                jobs.forEach((job) => {
+                    window.pendingJobsMap[job.id] = job;
+                    const card = document.createElement('div');
+                    card.className = 'admin-job-card';
+                    card.innerHTML = `
+                        <h4>${job.title || 'Untitled Job'}</h4>
+                        <div class="job-info">
+                            <div><strong>Category:</strong> ${job.category || 'N/A'}</div>
+                            <div><strong>Work Type:</strong> ${job.work_type || 'N/A'}</div>
+                            <div><strong>Location:</strong> ${job.location || 'N/A'}</div>
+                            <div><strong>Salary:</strong> ${formatSalary(parseFloat(job.rate_amount), job.rate_type)}</div>
+                            <div><strong>Created:</strong> ${new Date(job.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                        </div>
+                        <div class="job-description">
+                            ${job.description || 'No description provided.'}
+                        </div>
+                        <div class="job-actions">
+                            <button class="view-btn" data-job-id="${job.id}">View Details</button>
+                            <button class="approve-btn" data-job-id="${job.id}">Approve</button>
+                            <button class="reject-btn" data-job-id="${job.id}">Reject</button>
+                        </div>
+                    `;
+
+                    // Add event listeners
+                    const viewBtn = card.querySelector('.view-btn');
+                    const approveBtn = card.querySelector('.approve-btn');
+                    const rejectBtn = card.querySelector('.reject-btn');
+
+                    viewBtn.addEventListener('click', () => {
+                        viewJobDetails(job);
+                    });
+
+                    approveBtn.addEventListener('click', () => {
+                        approveJob(job.id, approveBtn);
+                    });
+
+                    rejectBtn.addEventListener('click', () => {
+                        rejectJob(job.id, rejectBtn);
+                    });
+
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error loading pending jobs:', err);
+                const grid = document.getElementById('pending-jobs-grid');
+                const emptyEl = document.getElementById('pending-jobs-empty');
+                if (grid) grid.innerHTML = '';
+                if (emptyEl) {
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'Error loading pending jobs.';
+                }
+            }
+        }
+
+        // View job details
+        function viewJobDetails(job) {
+            const jobDetailsModal = document.getElementById('jobDetailsModal');
+            if (jobDetailsModal) {
+                // Map job data to match job-details component format
+                const jobData = {
+                    id: job.id,
+                    title: job.title,
+                    description: job.description,
+                    category: job.category,
+                    work_type: job.work_type,
+                    location: job.location,
+                    work_schedule: job.work_schedule || '',
+                    rate_amount: parseFloat(job.rate_amount),
+                    rate_type: job.rate_type,
+                    salary_notes: job.salary_notes || '',
+                    vacancies_available: job.vacancies_available || 1,
+                    required_skills: job.required_skills || '',
+                    status: job.status,
+                    created_at: job.created_at,
+                    updated_at: job.updated_at,
+                    images: job.images || []
+                };
+                jobDetailsModal.data = jobData;
+                jobDetailsModal.open();
+            }
+        }
+
+        // Approve job
+        async function approveJob(jobId, button) {
+            if (!confirm('Are you sure you want to approve this job? It will be published immediately.')) {
+                return;
+            }
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Approving...';
+
+            try {
+                // Get job details to find lister_id
+                const card = button.closest('.admin-job-card');
+                const jobTitle = card.querySelector('h4')?.textContent || 'Your job';
+                
+                // Find the job in the current list to get lister_id
+                // We'll need to store this when loading jobs
+                const jobData = window.pendingJobsMap?.[jobId];
+                const listerId = jobData?.lister_id;
+
+                const result = await updatePendingJobToPublished(jobId);
+
+                if (!result.success) {
+                    alert(result.error || 'Failed to approve job.');
+                    button.disabled = false;
+                    button.textContent = originalText;
+                    return;
+                }
+
+                // Create notification for the lister
+                if (listerId) {
+                    try {
+                        await insertNotification(
+                            listerId,
+                            'JOB PUBLISHED',
+                            { message: 'Your job has been approved and is now live.' }
+                        );
+                    } catch (notifError) {
+                        console.error('Error creating notification:', notifError);
+                        // Don't fail the approval if notification fails
+                    }
+                }
+
+                // Success - remove the card and refresh
+                card.remove();
+                
+                // Refresh pending jobs list
+                loadPendingJobs();
+                
+                // Refresh stats
+                loadAdminStats();
+
+                // Show success message
+                alert('Job approved and published successfully!');
+            } catch (err) {
+                console.error('Error approving job:', err);
+                alert('An error occurred while approving the job.');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Reject job
+        async function rejectJob(jobId, button) {
+            if (!confirm('Are you sure you want to reject this job? The lister will be notified.')) {
+                return;
+            }
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Rejecting...';
+
+            try {
+                // Find the job in the current list to get lister_id
+                const jobData = window.pendingJobsMap?.[jobId];
+                const listerId = jobData?.lister_id;
+
+                const result = await updatePendingJobToRejected(jobId);
+
+                if (!result.success) {
+                    alert(result.error || 'Failed to reject job.');
+                    button.disabled = false;
+                    button.textContent = originalText;
+                    return;
+                }
+
+                // Create notification for the lister
+                if (listerId) {
+                    try {
+                        await insertNotification(
+                            listerId,
+                            'JOB REJECTED',
+                            { message: 'Your job was rejected by the admin.' }
+                        );
+                    } catch (notifError) {
+                        console.error('Error creating notification:', notifError);
+                        // Do not fail the rejection on notification error
+                    }
+                }
+
+                // Success - remove the card and refresh
+                button.closest('.admin-job-card').remove();
+
+                // Refresh pending jobs list
+                loadPendingJobs();
+
+                // Refresh stats
+                loadAdminStats();
+
+                alert('Job rejected successfully.');
+            } catch (err) {
+                console.error('Error rejecting job:', err);
+                alert('An error occurred while rejecting the job.');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // =========================
+        // User Management
+        // =========================
+        let usersCurrentPage = 1;
+        const usersPageSize = 10;
+        let usersHasMore = true;
+        let currentSearchTerm = "";
+
+        function setupUserManagement() {
+            const searchBtn = document.getElementById('user-search-btn');
+            const refreshBtn = document.getElementById('user-refresh-btn');
+            const prevBtn = document.getElementById('user-prev');
+            const nextBtn = document.getElementById('user-next');
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', () => {
+                    const term = document.getElementById('user-search').value.trim();
+                    currentSearchTerm = term;
+                    usersCurrentPage = 1;
+                    loadUsers();
+                });
+            }
+
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    document.getElementById('user-search').value = "";
+                    currentSearchTerm = "";
+                    usersCurrentPage = 1;
+                    loadUsers();
+                });
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    if (usersCurrentPage > 1) {
+                        usersCurrentPage -= 1;
+                        loadUsers();
+                    }
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    if (usersHasMore) {
+                        usersCurrentPage += 1;
+                        loadUsers();
+                    }
+                });
+            }
+        }
+
+        async function loadUsers() {
+            const grid = document.getElementById('user-grid');
+            const emptyEl = document.getElementById('user-empty');
+            const pageInfo = document.getElementById('user-page-info');
+            const prevBtn = document.getElementById('user-prev');
+            const nextBtn = document.getElementById('user-next');
+
+            if (!grid) return;
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; padding:2rem;">Loading...</div>';
+
+            try {
+                let users = [];
+                // If search term, use search RPC; else paginated list
+                if (currentSearchTerm) {
+                    const result = await findUserByIdOrEmail(currentSearchTerm);
+                    if (!result.success) {
+                        console.error('Search error:', result.error);
+                        grid.innerHTML = '';
+                        if (emptyEl) {
+                            emptyEl.style.display = 'block';
+                            emptyEl.textContent = 'Failed to search users.';
+                        }
+                        return;
+                    }
+                    users = result.data || [];
+                    usersHasMore = false; // disable next when searching
+                } else {
+                    const offset = (usersCurrentPage - 1) * usersPageSize;
+                    const result = await getActiveUsersPaginated(usersPageSize, offset);
+                    if (!result.success) {
+                        console.error('Users load error:', result.error);
+                        grid.innerHTML = '';
+                        if (emptyEl) {
+                            emptyEl.style.display = 'block';
+                            emptyEl.textContent = 'Failed to load users.';
+                        }
+                        return;
+                    }
+                    users = result.data || [];
+                    // Heuristic for hasMore: if less than pageSize, no more
+                    usersHasMore = users.length === usersPageSize;
+                }
+
+                grid.innerHTML = '';
+                if (users.length === 0) {
+                    if (emptyEl) {
+                        emptyEl.style.display = 'block';
+                        emptyEl.textContent = currentSearchTerm ? 'No users matched your search.' : 'No users found.';
+                    }
+                } else {
+                    if (emptyEl) emptyEl.style.display = 'none';
+
+                    users.forEach((user) => {
+                        const card = document.createElement('div');
+                        card.className = 'admin-job-card';
+                        card.innerHTML = `
+                            <h4>${user.full_name || 'Unnamed User'}</h4>
+                            <div class="job-info">
+                                <div><strong>Email:</strong> ${user.email}</div>
+                                <div><strong>Role:</strong> ${user.role}</div>
+                                <div><strong>Status:</strong> ${user.status}</div>
+                                <div><strong>Created:</strong> ${new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                                <div><strong>ID:</strong> ${user.id}</div>
+                            </div>
+                            <div class="job-actions">
+                                <button class="view-btn" data-user-id="${user.id}">Reset Password</button>
+                                <button class="reject-btn" data-user-id="${user.id}">Deactivate</button>
+                            </div>
+                        `;
+
+                        const resetBtn = card.querySelector('.view-btn');
+                        const deactivateBtn = card.querySelector('.reject-btn');
+
+                        resetBtn.addEventListener('click', () => resetPassword(user, resetBtn));
+                        deactivateBtn.addEventListener('click', () => deactivateUser(user, deactivateBtn));
+
+                        grid.appendChild(card);
+                    });
+                }
+
+                if (pageInfo) {
+                    pageInfo.textContent = currentSearchTerm ? 'Search results' : `Page ${usersCurrentPage}`;
+                }
+                if (prevBtn) prevBtn.disabled = currentSearchTerm ? true : usersCurrentPage === 1;
+                if (nextBtn) nextBtn.disabled = currentSearchTerm ? true : !usersHasMore;
+            } catch (err) {
+                console.error('Error loading users:', err);
+                grid.innerHTML = '';
+                if (emptyEl) {
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'Error loading users.';
+                }
+            }
+        }
+
+        async function resetPassword(user, button) {
+            if (!confirm(`Reset password for ${user.email}? New password will be 'pass123'.`)) return;
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Resetting...';
+
+            try {
+                const { hash, salt } = await hashPassword('pass123');
+                const result = await updateUserPasswordById(user.id, hash, salt);
+
+                if (!result.success) {
+                    alert(result.error || 'Failed to reset password.');
+                    button.disabled = false;
+                    button.textContent = originalText;
+                    return;
+                }
+
+                alert('Password reset to default (pass123).');
+            } catch (err) {
+                console.error('Error resetting password:', err);
+                alert('An error occurred while resetting the password.');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        async function deactivateUser(user, button) {
+            if (!confirm(`Deactivate ${user.email}? They will not be able to log in.`)) return;
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Deactivating...';
+
+            try {
+                const result = await deactivateUserById(user.id);
+
+                if (!result.success) {
+                    alert(result.error || 'Failed to deactivate user.');
+                    button.disabled = false;
+                    button.textContent = originalText;
+                    return;
+                }
+
+                // Refresh users list
+                loadUsers();
+                alert('User deactivated successfully.');
+            } catch (err) {
+                console.error('Error deactivating user:', err);
+                alert('An error occurred while deactivating the user.');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Load admin statistics
+        async function loadAdminStats() {
+            try {
+                // Get counts using RPC functions
+                const [
+                    { data: listersData, error: listersError },
+                    { data: seekersData, error: seekersError },
+                    { data: pendingData, error: pendingError },
+                    { data: publishedData, error: publishedError }
+                ] = await Promise.all([
+                    supabase.rpc('count_active_job_lister'),
+                    supabase.rpc('count_active_job_seeker'),
+                    supabase.rpc('count_pending_approval'),
+                    supabase.rpc('count_published_job')
+                ]);
+
+                // Log for debugging
+                console.log('Listers response:', { data: listersData, error: listersError });
+                console.log('Seekers response:', { data: seekersData, error: seekersError });
+                console.log('Pending response:', { data: pendingData, error: pendingError });
+                console.log('Published response:', { data: publishedData, error: publishedError });
+
+                if (listersError) console.error('Listers count error:', listersError);
+                if (seekersError) console.error('Seekers count error:', seekersError);
+                if (pendingError) console.error('Pending approval count error:', pendingError);
+                if (publishedError) console.error('Published jobs count error:', publishedError);
+
+                // Extract counts from RPC responses
+                // RPC functions return the count directly as a number in the data property
+                // Since console shows data: 16, data: 36, etc., the data is already the number
+                let listersCount = 0;
+                let seekersCount = 0;
+                let pendingCount = 0;
+                let publishedCount = 0;
+
+                // Direct assignment - data is already the number
+                listersCount = listersData || 0;
+                seekersCount = seekersData || 0;
+                pendingCount = pendingData || 0;
+                publishedCount = publishedData || 0;
+
+                // If data is null/undefined, ensure we get 0, not NaN
+                listersCount = (listersCount === null || listersCount === undefined || isNaN(listersCount)) ? 0 : Number(listersCount);
+                seekersCount = (seekersCount === null || seekersCount === undefined || isNaN(seekersCount)) ? 0 : Number(seekersCount);
+                pendingCount = (pendingCount === null || pendingCount === undefined || isNaN(pendingCount)) ? 0 : Number(pendingCount);
+                publishedCount = (publishedCount === null || publishedCount === undefined || isNaN(publishedCount)) ? 0 : Number(publishedCount);
+
+                console.log('Extracted counts:', {
+                    listers: listersCount,
+                    seekers: seekersCount,
+                    pending: pendingCount,
+                    published: publishedCount
+                });
+
+                // Update counts
+                const listersEl = document.getElementById('listers-count');
+                const seekersEl = document.getElementById('seekers-count');
+                const pendingEl = document.getElementById('pending-count');
+                const publishedEl = document.getElementById('published-count');
+
+                if (listersEl) listersEl.textContent = String(listersCount);
+                if (seekersEl) seekersEl.textContent = String(seekersCount);
+                if (pendingEl) pendingEl.textContent = String(pendingCount);
+                if (publishedEl) publishedEl.textContent = String(publishedCount);
+            } catch (err) {
+                console.error('Error loading admin stats:', err);
+                // Set placeholder values
+                const listersEl = document.getElementById('listers-count');
+                const seekersEl = document.getElementById('seekers-count');
+                const pendingEl = document.getElementById('pending-count');
+                const publishedEl = document.getElementById('published-count');
+                
+                if (listersEl) listersEl.textContent = '-';
+                if (seekersEl) seekersEl.textContent = '-';
+                if (pendingEl) pendingEl.textContent = '-';
+                if (publishedEl) publishedEl.textContent = '-';
+            }
+        }
+    </script>
+</body>
+</html>

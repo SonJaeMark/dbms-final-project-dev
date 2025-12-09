@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Match Up | Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        .glassy-form {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            max-width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .glassy-input, .glassy-select {
+            flex: 1 1 0;
+            min-width: 0;
+            padding: 0.7rem 0.9rem;
+            border: none;
+            border-right: 1px solid rgba(255,255,255,0.35);
+            background: transparent;
+            color: #fff;
+            outline: none;
+        }
+        .glassy-input::placeholder { color: rgba(255,255,255,0.85); }
+        .glassy-select option { color: #333; }
+        .glassy-button {
+            padding: 0.7rem 1rem;
+            border: none;
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            border-left: 1px solid rgba(255,255,255,0.35);
+        }
+        .glassy-form > :first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        .glassy-form > :last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        .glassy-button:hover { background: rgba(255,255,255,0.35); }
+    </style>
+</head>
+<body>
+
+    <custom-navbar></custom-navbar>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Find Your Dream Job</h1>
+            <p class="hero-subtitle">Discover opportunities that match your skills and aspirations</p>
+            <form id="heroSearchForm" class="glassy-form">
+                <input type="text" id="hero_title" class="glassy-input" placeholder="Title">
+                <input type="text" id="hero_location" class="glassy-input" placeholder="Location">
+                <input type="text" id="hero_category" class="glassy-input" placeholder="Category">
+                <input type="number" id="hero_min_salary" class="glassy-input" placeholder="Min Salary" step="0.01">
+                <input type="number" id="hero_max_salary" class="glassy-input" placeholder="Max Salary" step="0.01">
+                <select id="hero_work_type" class="glassy-select">
+                    <option value="">Work Type</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Onsite">Onsite</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+                <button type="submit" class="glassy-button">Search</button>
+            </form>
+            <a href="#job-grid" class="cta-button" style="margin-top:0.5rem;">View All</a>
+        </div>
+    </section>
+    
+    <main>
+        <div class="container">
+            <h2 class="text-center mb-3" id="job-grid">Available Jobs</h2>
+            <job-grid></job-grid>
+        </div>
+    </main>
+
+    <custom-footer></custom-footer>
+
+
+    <!-- Must be a module -->
+     <script type="module" src="js/core/execute-ddl.js"></script>
+    <script type="module" src="js/comp/navbar.js"></script>
+    <script type="module" src="js/comp/job-card.js"></script>
+    <script type="module" src="js/comp/job-grid.js"></script>
+    <script type="module" src="js/comp/footer.js"></script>
+    <script type="module" src="js/comp/job-details-seeker.js"></script>
+    <script type="module" src="js/comp/job-details.js"></script>
+    <script type="module">
+        import { getJobsByFilter, getJobWithImagesByJobId } from './js/db-logic/job-handler.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('heroSearchForm');
+            const grid = document.querySelector('job-grid');
+            form?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const p_title = document.getElementById('hero_title').value.trim() || null;
+                const p_location = document.getElementById('hero_location').value.trim() || null;
+                const p_category = document.getElementById('hero_category').value.trim() || null;
+                const minVal = document.getElementById('hero_min_salary').value;
+                const maxVal = document.getElementById('hero_max_salary').value;
+                const p_min_salary = minVal !== '' ? parseFloat(minVal) : null;
+                const p_max_salary = maxVal !== '' ? parseFloat(maxVal) : null;
+                const wtVal = document.getElementById('hero_work_type').value;
+                const p_work_type = wtVal ? wtVal : null;
+                const p_limit = 12;
+                const p_offset = 0;
+
+                const idsRes = await getJobsByFilter({ p_title, p_location, p_category, p_min_salary, p_max_salary, p_work_type, p_limit, p_offset });
+                if (!idsRes.success) {
+                    alert(idsRes.error || 'Search failed');
+                    return;
+                }
+                const jobs = [];
+                for (const row of idsRes.data) {
+                    const id = row.id;
+                    const det = await getJobWithImagesByJobId(id);
+                    if (det.success && det.data) jobs.push(det.data);
+                }
+                if (grid) grid.data = jobs;
+                document.getElementById('job-grid')?.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Hero modal open for job cards (use seeker modal if logged in as seeker)
+            const userStr = localStorage.getItem('auth_user');
+            let isSeeker = false;
+            try { isSeeker = JSON.parse(userStr)?.role === 'job_seeker'; } catch {}
+            const heroModal = document.createElement(isSeeker ? 'job-details-seeker' : 'job-details');
+            heroModal.id = 'heroJobDetailsModal';
+            document.body.appendChild(heroModal);
+            document.addEventListener('view-job', async (e) => {
+                const { jobId } = e.detail || {};
+                try {
+                    const res = await getJobWithImagesByJobId(jobId);
+                    if (res.success && res.data) {
+                        heroModal.data = res.data;
+                        heroModal.open();
+                    }
+                } catch (err) {
+                    console.error('Error loading job details:', err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

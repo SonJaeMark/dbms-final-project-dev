@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Job Match Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <register-form id="reg" style="display:none"></register-form>
+    <login-form id="log" ></login-form>
+
+    <script type="module" src="js/comp/register-form.js"></script>
+    <script type="module" src="js/comp/login-form.js"></script>
+
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+
+        // From Register → Login
+        document.getElementById("reg").addEventListener("go-to-login", () => {
+            document.getElementById("reg").style.display = "none";
+            document.getElementById("log").style.display = "block";
+        });
+
+        // NEW: From Login → Register
+        document.getElementById("log").addEventListener("go-to-register", () => {
+            document.getElementById("log").style.display = "none";
+            document.getElementById("reg").style.display = "block";
+        });
+
+        });
+    </script>
+
+</body>
+</html>
