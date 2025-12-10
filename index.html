@@ -48,6 +48,27 @@
         .glassy-form > :first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
         .glassy-form > :last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
         .glassy-button:hover { background: rgba(255,255,255,0.35); }
+        @media (max-width: 768px) {
+            .glassy-form {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.6rem;
+            }
+            .glassy-input, .glassy-select, .glassy-button {
+                border-right: none;
+                width: 100%;
+                padding: 0.65rem 0.85rem;
+            }
+            .glassy-form > :first-child, .glassy-form > :last-child {
+                border-radius: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .glassy-input, .glassy-select, .glassy-button {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.95rem;
+            }
+        }
     </style>
 </head>
 <body>

@@ -42,9 +42,17 @@ class CustomNavbar extends HTMLElement {
     const menuIcon = this.shadowRoot.querySelector(".menu-icon");
     const menuToggle = this.shadowRoot.querySelector("#menu-toggle");
     if (menuIcon) {
+      menuIcon.setAttribute('tabindex', '0');
       menuIcon.addEventListener("click", (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        this.toggleSidePanel();
+        this.openSidePanel();
+      });
+      menuIcon.addEventListener("keydown", (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.openSidePanel();
+        }
       });
     }
     if (menuToggle) {
@@ -241,7 +249,6 @@ class CustomNavbar extends HTMLElement {
     if (sidePanel) {
       sidePanel.classList.add("open");
       document.body.style.overflow = "hidden";
-      this.loadNotifications(); // Refresh when opening
     }
     if (menuToggle) {
       menuToggle.checked = true;
@@ -396,7 +403,12 @@ class CustomNavbar extends HTMLElement {
     homeLink.href = "index.html";
     homeLink.className = "side-panel-link";
     homeLink.textContent = "🏠 Home";
-    homeLink.addEventListener("click", () => this.closeSidePanel());
+    homeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const url = homeLink.href;
+      this.closeSidePanel();
+      setTimeout(() => location.assign(url), 0);
+    });
     navSection.appendChild(homeLink);
 
     if (isLoggedIn) {
@@ -404,7 +416,12 @@ class CustomNavbar extends HTMLElement {
       dashboardLink.href = this.getDashboardUrl(user.role);
       dashboardLink.className = "side-panel-link";
       dashboardLink.textContent = "📊 Dashboard";
-      dashboardLink.addEventListener("click", () => this.closeSidePanel());
+      dashboardLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        const url = dashboardLink.href;
+        this.closeSidePanel();
+        setTimeout(() => location.assign(url), 0);
+      });
       navSection.appendChild(dashboardLink);
     }
 
@@ -412,14 +429,24 @@ class CustomNavbar extends HTMLElement {
     aboutLink.href = "about-us.html";
     aboutLink.className = "side-panel-link";
     aboutLink.textContent = "ℹ️ About Us";
-    aboutLink.addEventListener("click", () => this.closeSidePanel());
+    aboutLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const url = aboutLink.href;
+      this.closeSidePanel();
+      setTimeout(() => location.assign(url), 0);
+    });
     navSection.appendChild(aboutLink);
 
     const contactLink = document.createElement("a");
     contactLink.href = "contact-us.html";
     contactLink.className = "side-panel-link";
     contactLink.textContent = "📧 Contact Us";
-    contactLink.addEventListener("click", () => this.closeSidePanel());
+    contactLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const url = contactLink.href;
+      this.closeSidePanel();
+      setTimeout(() => location.assign(url), 0);
+    });
     navSection.appendChild(contactLink);
 
     if (!isLoggedIn) {
@@ -427,72 +454,30 @@ class CustomNavbar extends HTMLElement {
       loginLink.href = "login.html";
       loginLink.className = "side-panel-link";
       loginLink.textContent = "🔑 Login";
-      loginLink.addEventListener("click", () => this.closeSidePanel());
+      loginLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        const url = loginLink.href;
+        this.closeSidePanel();
+        setTimeout(() => location.assign(url), 0);
+      });
       navSection.appendChild(loginLink);
 
       const registerLink = document.createElement("a");
       registerLink.href = "register.html";
       registerLink.className = "side-panel-link";
       registerLink.textContent = "📝 Register";
-      registerLink.addEventListener("click", () => this.closeSidePanel());
+      registerLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        const url = registerLink.href;
+        this.closeSidePanel();
+        setTimeout(() => location.assign(url), 0);
+      });
       navSection.appendChild(registerLink);
     }
 
     panelContent.appendChild(navSection);
 
-    if (isLoggedIn) {
-      // Add notifications section
-      const notifSection = document.createElement("div");
-      notifSection.className = "side-panel-section";
-      
-      const notifTitle = document.createElement("div");
-      notifTitle.className = "side-panel-title";
-      notifTitle.textContent = "Notifications";
-      
-      const notifBadge = document.createElement("span");
-      notifBadge.className = "notification-badge";
-      notifBadge.style.display = this.unreadCount > 0 ? "flex" : "none";
-      notifBadge.textContent = this.unreadCount > 99 ? "99+" : this.unreadCount;
-      notifTitle.appendChild(notifBadge);
-      
-      const notifList = document.createElement("div");
-      notifList.className = "side-panel-notifications";
-      
-      notifSection.appendChild(notifTitle);
-      notifSection.appendChild(notifList);
-      panelContent.appendChild(notifSection);
-      
-      this.updateSidePanelNotifications();
-
-      // Add account section
-      const accountSection = document.createElement("div");
-      accountSection.className = "side-panel-section";
-      
-      const accountTitle = document.createElement("div");
-      accountTitle.className = "side-panel-title";
-      accountTitle.textContent = "Account";
-      accountSection.appendChild(accountTitle);
-
-      const settingsBtn = document.createElement("button");
-      settingsBtn.className = "side-panel-link";
-      settingsBtn.textContent = "⚙️ Settings";
-      settingsBtn.addEventListener("click", () => {
-        this.closeSidePanel();
-        alert("Account Settings coming soon!");
-      });
-      accountSection.appendChild(settingsBtn);
-
-      const logoutBtn = document.createElement("button");
-      logoutBtn.className = "side-panel-link";
-      logoutBtn.textContent = "🚪 Logout";
-      logoutBtn.addEventListener("click", () => {
-        this.closeSidePanel();
-        this.handleLogout();
-      });
-      accountSection.appendChild(logoutBtn);
-      
-      panelContent.appendChild(accountSection);
-    }
+    // Removed notifications, settings, and logout from side panel
   }
 
   updateUserIcon(isLoggedIn, user) {

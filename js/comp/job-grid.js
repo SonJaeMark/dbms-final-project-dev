@@ -68,6 +68,23 @@ class JobGrid extends HTMLElement {
           margin: 0 10px;
           color: #666;
         }
+        @media (max-width: 768px) {
+          :host { --gap: 16px; }
+          .grid {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            padding: 12px 0;
+          }
+          .pagination {
+            flex-direction: column;
+            gap: 8px;
+          }
+          .pagination button {
+            width: 100%;
+          }
+          .pagination-info {
+            margin: 4px 0;
+          }
+        }
       </style>
       <div class="grid">
         <slot></slot> <!-- optional fallback if you use static job-card elements -->

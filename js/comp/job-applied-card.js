@@ -23,6 +23,18 @@ class JobAppliedCard extends HTMLElement {
         .button-group { display:flex; gap:${tokens.spacing.sm}; }
         .view-btn { flex:1; background:${tokens.colors.primary}; color:white; padding:${tokens.spacing.sm} ${tokens.spacing.md}; border-radius:${tokens.radius.md}; cursor:pointer; border:none; }
         .cancel-btn { flex:1; background:#dc3545; color:white; padding:${tokens.spacing.sm} ${tokens.spacing.md}; border-radius:${tokens.radius.md}; cursor:pointer; border:none; }
+        @media (max-width: 768px) {
+          .card { max-width: 100%; }
+          .image-wrapper { height: 150px; }
+          .title { font-size: 1.05rem; }
+          .details { font-size: 0.88rem; }
+          .button-group { flex-direction: column; }
+        }
+        @media (max-width: 480px) {
+          .image-wrapper { height: 130px; }
+          .title { font-size: 1rem; }
+          .details { font-size: 0.85rem; }
+        }
       </style>
 
       <div class="card">
