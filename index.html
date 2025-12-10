@@ -65,7 +65,7 @@
                 <input type="text" id="hero_category" class="glassy-input" placeholder="Category">
                 <input type="number" id="hero_min_salary" class="glassy-input" placeholder="Min Salary" step="0.01">
                 <input type="number" id="hero_max_salary" class="glassy-input" placeholder="Max Salary" step="0.01">
-                <select id="hero_work_type" class="glassy-select">
+                <select aria-label="Work Type" id="hero_work_type" class="glassy-select">
                     <option value="">Work Type</option>
                     <option value="Remote">Remote</option>
                     <option value="Onsite">Onsite</option>
@@ -101,6 +101,85 @@
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('heroSearchForm');
             const grid = document.querySelector('job-grid');
+            const userStr = localStorage.getItem('auth_user');
+            let isSeeker = false;
+            try { isSeeker = JSON.parse(userStr)?.role === 'job_seeker'; } catch {}
+            const heroModal = document.createElement(isSeeker ? 'job-details-seeker' : 'job-details');
+            heroModal.id = 'heroJobDetailsModal';
+            document.body.appendChild(heroModal);
+
+            function serializeSearchParams(p) {
+                const params = new URLSearchParams();
+                if (p.p_title) params.set('title', p.p_title);
+                if (p.p_location) params.set('location', p.p_location);
+                if (p.p_category) params.set('category', p.p_category);
+                if (p.p_min_salary !== null && p.p_min_salary !== undefined) params.set('min_salary', String(p.p_min_salary));
+                if (p.p_max_salary !== null && p.p_max_salary !== undefined) params.set('max_salary', String(p.p_max_salary));
+                if (p.p_work_type) params.set('work_type', p.p_work_type);
+                if (p.page) params.set('page', String(p.page));
+                return params;
+            }
+
+            async function runSearchFromParams(p) {
+                const p_limit = 12;
+                const p_offset = 0;
+                const r = await getJobsByFilter({
+                    p_title: p.p_title ?? null,
+                    p_location: p.p_location ?? null,
+                    p_category: p.p_category ?? null,
+                    p_min_salary: p.p_min_salary ?? null,
+                    p_max_salary: p.p_max_salary ?? null,
+                    p_work_type: p.p_work_type ?? null,
+                    p_limit,
+                    p_offset
+                });
+                if (!r.success) return;
+                const jobs = [];
+                for (const row of r.data) {
+                    const id = row.id;
+                    const det = await getJobWithImagesByJobId(id);
+                    if (det.success && det.data) jobs.push(det.data);
+                }
+                if (grid) grid.data = jobs;
+            }
+
+            function readParams() {
+                const params = new URLSearchParams(location.search);
+                return {
+                    p_title: params.get('title') || null,
+                    p_location: params.get('location') || null,
+                    p_category: params.get('category') || null,
+                    p_min_salary: params.get('min_salary') ? parseFloat(params.get('min_salary')) : null,
+                    p_max_salary: params.get('max_salary') ? parseFloat(params.get('max_salary')) : null,
+                    p_work_type: params.get('work_type') || null,
+                    page: params.get('page') ? parseInt(params.get('page'), 10) : null,
+                    job: params.get('job') || null
+                };
+            }
+
+            function prefillForm(p) {
+                const t = document.getElementById('hero_title');
+                const l = document.getElementById('hero_location');
+                const c = document.getElementById('hero_category');
+                const min = document.getElementById('hero_min_salary');
+                const max = document.getElementById('hero_max_salary');
+                const wt = document.getElementById('hero_work_type');
+                if (t) t.value = p.p_title || '';
+                if (l) l.value = p.p_location || '';
+                if (c) c.value = p.p_category || '';
+                if (min) min.value = p.p_min_salary !== null && p.p_min_salary !== undefined ? String(p.p_min_salary) : '';
+                if (max) max.value = p.p_max_salary !== null && p.p_max_salary !== undefined ? String(p.p_max_salary) : '';
+                if (wt) wt.value = p.p_work_type || '';
+            }
+
+            async function openJobById(id) {
+                const res = await getJobWithImagesByJobId(id);
+                if (res.success && res.data) {
+                    heroModal.data = res.data;
+                    heroModal.open();
+                }
+            }
+
             form?.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const p_title = document.getElementById('hero_title').value.trim() || null;
@@ -112,43 +191,60 @@
                 const p_max_salary = maxVal !== '' ? parseFloat(maxVal) : null;
                 const wtVal = document.getElementById('hero_work_type').value;
                 const p_work_type = wtVal ? wtVal : null;
-                const p_limit = 12;
-                const p_offset = 0;
-
-                const idsRes = await getJobsByFilter({ p_title, p_location, p_category, p_min_salary, p_max_salary, p_work_type, p_limit, p_offset });
-                if (!idsRes.success) {
-                    alert(idsRes.error || 'Search failed');
-                    return;
-                }
-                const jobs = [];
-                for (const row of idsRes.data) {
-                    const id = row.id;
-                    const det = await getJobWithImagesByJobId(id);
-                    if (det.success && det.data) jobs.push(det.data);
-                }
-                if (grid) grid.data = jobs;
+                const state = { p_title, p_location, p_category, p_min_salary, p_max_salary, p_work_type, page: 1 };
+                const params = serializeSearchParams(state);
+                history.pushState({ type: 'search', state }, '', `?${params.toString()}`);
+                await runSearchFromParams(state);
                 document.getElementById('job-grid')?.scrollIntoView({ behavior: 'smooth' });
             });
 
-            // Hero modal open for job cards (use seeker modal if logged in as seeker)
-            const userStr = localStorage.getItem('auth_user');
-            let isSeeker = false;
-            try { isSeeker = JSON.parse(userStr)?.role === 'job_seeker'; } catch {}
-            const heroModal = document.createElement(isSeeker ? 'job-details-seeker' : 'job-details');
-            heroModal.id = 'heroJobDetailsModal';
-            document.body.appendChild(heroModal);
             document.addEventListener('view-job', async (e) => {
                 const { jobId } = e.detail || {};
-                try {
-                    const res = await getJobWithImagesByJobId(jobId);
-                    if (res.success && res.data) {
-                        heroModal.data = res.data;
-                        heroModal.open();
-                    }
-                } catch (err) {
-                    console.error('Error loading job details:', err);
+                const current = readParams();
+                const params = serializeSearchParams(current);
+                params.set('job', jobId);
+                history.pushState({ type: 'modal', jobId }, '', `?${params.toString()}`);
+                await openJobById(jobId);
+            });
+
+            heroModal.addEventListener('job-details-closed', () => {
+                const s = history.state;
+                if (s && s.type === 'modal') history.back();
+            });
+
+            document.addEventListener('page-changed', (e) => {
+                const current = readParams();
+                const state = { p_title: current.p_title, p_location: current.p_location, p_category: current.p_category, p_min_salary: current.p_min_salary, p_max_salary: current.p_max_salary, p_work_type: current.p_work_type, page: e.detail?.page || 1 };
+                const params = serializeSearchParams(state);
+                if (current.job) params.set('job', current.job);
+                history.pushState({ type: 'search', state }, '', `?${params.toString()}`);
+            });
+
+            window.addEventListener('popstate', async () => {
+                const p = readParams();
+                prefillForm(p);
+                if (p.p_title || p.p_location || p.p_category || p.p_min_salary !== null || p.p_max_salary !== null || p.p_work_type) {
+                    await runSearchFromParams(p);
+                } else if (grid && p.page) {
+                    grid.setPage(p.page);
+                }
+                if (p.job) {
+                    await openJobById(p.job);
+                } else {
+                    if (heroModal.isOpen && heroModal.isOpen()) heroModal.close();
                 }
             });
+
+            (async function init() {
+                const p = readParams();
+                prefillForm(p);
+                if (p.p_title || p.p_location || p.p_category || p.p_min_salary !== null || p.p_max_salary !== null || p.p_work_type) {
+                    await runSearchFromParams(p);
+                } else if (grid && p.page) {
+                    grid.setPage(p.page);
+                }
+                if (p.job) await openJobById(p.job);
+            })();
         });
     </script>
 </body>
