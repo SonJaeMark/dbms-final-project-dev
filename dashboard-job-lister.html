@@ -244,6 +244,14 @@
                 padding: 0.5rem;
                 font-size: 0.85rem;
             }
+            .dashboard-content {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 1rem;
+            }
+            #my-jobs-grid {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+                gap: 0.75rem !important;
+            }
         }
     </style>
 </head>
@@ -390,6 +398,7 @@
 
         // Navigation functionality with history
         function showSection(sectionId, updateHash = true) {
+            sectionId = String(sectionId || '').replace(/[^a-z0-9_-]/gi, '');
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
@@ -399,7 +408,8 @@
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
-            document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+            const activeLink = Array.from(document.querySelectorAll('.nav-link')).find(el => el.getAttribute('data-section') === sectionId);
+            if (activeLink) activeLink.classList.add('active');
 
             if (updateHash) {
                 const current = location.hash.replace('#','');

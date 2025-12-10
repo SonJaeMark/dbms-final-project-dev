@@ -312,6 +312,18 @@ class JobCardLister extends HTMLElement {
           opacity: 0.6;
           cursor: not-allowed;
         }
+        @media (max-width: 768px) {
+          .card { max-width: 100%; }
+          .image-wrapper { height: 150px; }
+          .title { font-size: 1.05rem; }
+          .details { font-size: 0.88rem; }
+          .button-group { flex-direction: column; }
+        }
+        @media (max-width: 480px) {
+          .image-wrapper { height: 130px; }
+          .title { font-size: 1rem; }
+          .details { font-size: 0.85rem; }
+        }
       </style>
 
       <div class="card">
