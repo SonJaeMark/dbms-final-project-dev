@@ -429,24 +429,25 @@
         import { insertNotification } from "./js/db-logic/notification-handler.js";
         import { hashPassword } from "./js/security/password.js";
 
-        // Navigation functionality
-        function showSection(sectionId) {
-            // Hide all sections
+        // Navigation functionality with history
+        function showSection(sectionId, updateHash = true) {
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
-
-            // Show selected section
             const section = document.getElementById(sectionId);
-            if (section) {
-                section.classList.add('active');
-            }
+            if (section) section.classList.add('active');
 
-            // Update active nav link
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+
+            if (updateHash) {
+                const current = location.hash.replace('#','');
+                if (current !== sectionId) {
+                    location.hash = sectionId;
+                }
+            }
         }
 
         // Setup navigation links
@@ -455,14 +456,22 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const section = link.getAttribute('data-section');
-                    if (section) {
-                        showSection(section);
-                    }
+                    if (section) showSection(section, true);
                 });
             });
 
             // Make showSection available globally for onclick handlers
-            window.showSection = showSection;
+            window.showSection = (sectionId) => showSection(sectionId, true);
+
+            // Initialize from hash
+            const initial = location.hash ? location.hash.replace('#','') : 'dashboard';
+            showSection(initial, false);
+
+            // Handle back/forward
+            window.addEventListener('hashchange', () => {
+                const s = location.hash.replace('#','') || 'dashboard';
+                showSection(s, false);
+            });
 
             // Load admin stats
             loadAdminStats();

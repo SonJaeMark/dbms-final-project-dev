@@ -133,6 +133,11 @@ class JobGrid extends HTMLElement {
     this._data = result.data;
     this.render();
     this.renderPagination();
+    this.dispatchEvent(new CustomEvent("page-changed", { detail: { page: this.currentPage }, bubbles: true, composed: true }));
+  }
+
+  setPage(page) {
+    this.loadJobs(page);
   }
 
   render() {

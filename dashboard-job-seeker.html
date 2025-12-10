@@ -338,8 +338,8 @@
         import { countApplicationsByUser, getAppliedApplicationsByUser, getAcceptedApplicationsByUser, insertResumeByUser, updateApplicationToCancelled, getResumeByUser } from "./js/db-logic/seeker-handler.js";
         import { getJobWithImagesByJobId, getJobsByFilter } from "./js/db-logic/job-handler.js";
 
-        // Navigation functionality
-        function showSection(sectionId) {
+        // Navigation functionality with history
+        function showSection(sectionId, updateHash = true) {
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
@@ -350,6 +350,13 @@
                 link.classList.remove('active');
             });
             document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+
+            if (updateHash) {
+                const current = location.hash.replace('#','');
+                if (current !== sectionId) {
+                    location.hash = sectionId;
+                }
+            }
         }
 
             document.addEventListener('DOMContentLoaded', async () => {
@@ -357,12 +364,22 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const section = link.getAttribute('data-section');
-                    if (section) showSection(section);
+                    if (section) showSection(section, true);
                 });
             });
 
             // Make showSection available globally for onclick handlers
-            window.showSection = showSection;
+            window.showSection = (sectionId) => showSection(sectionId, true);
+
+            // Initialize from hash
+            const initial = location.hash ? location.hash.replace('#','') : 'dashboard';
+            showSection(initial, false);
+
+            // Handle back/forward
+            window.addEventListener('hashchange', () => {
+                const s = location.hash.replace('#','') || 'dashboard';
+                showSection(s, false);
+            });
 
             loadCounts();
 
