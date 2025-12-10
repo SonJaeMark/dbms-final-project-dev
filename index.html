@@ -83,7 +83,21 @@
             <form id="heroSearchForm" class="glassy-form">
                 <input type="text" id="hero_title" class="glassy-input" placeholder="Title">
                 <input type="text" id="hero_location" class="glassy-input" placeholder="Location">
-                <input type="text" id="hero_category" class="glassy-input" placeholder="Category">
+                <select id="hero_category" class="glassy-select" aria-label="Category">
+                    <option value="">Category</option>
+                    <option value="Construction Worker">Construction Worker</option>
+                    <option value="Karpintero">Karpintero</option>
+                    <option value="Tubero">Tubero</option>
+                    <option value="Elektrisyan">Elektrisyan</option>
+                    <option value="Mekaniko (Sasakyan o Motor)">Mekaniko (Sasakyan o Motor)</option>
+                    <option value="Kasambahay / Yaya">Kasambahay / Yaya</option>
+                    <option value="Tagalinis / Housekeeper">Tagalinis / Housekeeper</option>
+                    <option value="Drayber (Family Driver / Delivery Driver)">Drayber (Family Driver / Delivery Driver)</option>
+                    <option value="Tindero / Tindera">Tindero / Tindera</option>
+                    <option value="Tagapagturo / Tutor">Tagapagturo / Tutor</option>
+                    <option value="Aricon Technician">Aricon Technician</option>
+                    <option value="Others">Others</option>
+                </select>
                 <input type="number" id="hero_min_salary" class="glassy-input" placeholder="Min Salary" step="0.01">
                 <input type="number" id="hero_max_salary" class="glassy-input" placeholder="Max Salary" step="0.01">
                 <select aria-label="Work Type" id="hero_work_type" class="glassy-select">
@@ -205,7 +219,7 @@
                 e.preventDefault();
                 const p_title = document.getElementById('hero_title').value.trim() || null;
                 const p_location = document.getElementById('hero_location').value.trim() || null;
-                const p_category = document.getElementById('hero_category').value.trim() || null;
+                const p_category = document.getElementById('hero_category').value || null;
                 const minVal = document.getElementById('hero_min_salary').value;
                 const maxVal = document.getElementById('hero_max_salary').value;
                 const p_min_salary = minVal !== '' ? parseFloat(minVal) : null;

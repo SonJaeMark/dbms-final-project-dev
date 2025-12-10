@@ -395,6 +395,7 @@
     <script type="module" src="js/comp/job-details.js"></script>
     <script type="module">
         import { supabase } from "./js/core/supabase-client.js";
+        import { getJobWithImagesByJobId } from "./js/db-logic/job-handler.js";
 
         // Navigation functionality with history
         function showSection(sectionId, updateHash = true) {
@@ -477,57 +478,19 @@
                 if (jobDetailsModal && jobData) {
                     jobDetailsModal.data = jobData;
                     jobDetailsModal.open();
-                } else if (jobDetailsModal && jobId) {
-                    // If jobData is not provided, fetch it
+                    return;
+                }
+                if (jobDetailsModal && jobId) {
                     try {
-                        const userStr = localStorage.getItem("auth_user");
-                        if (!userStr) return;
-                        const user = JSON.parse(userStr);
-                        
-                        // Try to get job from any status
-                        const statuses = ['draft', 'published', 'pending_approval'];
-                        let jobData = null;
-                        
-                        for (const status of statuses) {
-                            const { data, error } = await supabase.rpc('get_all_jobs_by_status_and_user_id', {
-                                p_status: status,
-                                p_user_id: user.id
-                            });
-                            
-                            if (!error && data) {
-                                const job = data.find(j => j.job_id === jobId);
-                                if (job) {
-                                    jobData = {
-                                        id: job.job_id,
-                                        title: job.title,
-                                        description: job.description,
-                                        location: job.location,
-                                        images: job.images || [],
-                                        rate_amount: job.rate_amount,
-                                        rate_type: job.rate_type,
-                                        salary_notes: job.salary_notes,
-                                        created_at: job.created_at,
-                                        updated_at: job.updated_at,
-                                        category: job.category,
-                                        work_type: job.work_type,
-                                        work_schedule: job.work_schedule,
-                                        vacancies_available: job.vacancies_available,
-                                        required_skills: job.required_skills,
-                                        status: job.status
-                                    };
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        if (jobData) {
-                            jobDetailsModal.data = jobData;
+                        const res = await getJobWithImagesByJobId(jobId);
+                        if (res.success && res.data) {
+                            jobDetailsModal.data = res.data;
                             jobDetailsModal.open();
                         } else {
-                            alert('Job not found.');
+                            alert('Failed to load job details.');
                         }
                     } catch (err) {
-                        console.error('Error fetching job:', err);
+                        console.error('Error fetching job details:', err);
                         alert('Failed to load job details.');
                     }
                 }

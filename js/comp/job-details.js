@@ -16,6 +16,8 @@ class JobDetails extends HTMLElement {
   setupEventListeners() {
     const closeBtn = this.shadowRoot.querySelector("#close-btn");
     const overlay = this.shadowRoot.querySelector("#overlay");
+    const prevBtn = this.shadowRoot.querySelector('#prev-btn');
+    const nextBtn = this.shadowRoot.querySelector('#next-btn');
     
     if (closeBtn) {
       closeBtn.addEventListener("click", () => this.close());
@@ -26,6 +28,21 @@ class JobDetails extends HTMLElement {
         if (e.target === overlay) {
           this.close();
         }
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (!this._images || this._images.length === 0) return;
+        this._currentIndex = (this._currentIndex - 1 + this._images.length) % this._images.length;
+        this.updateCarousel();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (!this._images || this._images.length === 0) return;
+        this._currentIndex = (this._currentIndex + 1) % this._images.length;
+        this.updateCarousel();
       });
     }
 
@@ -125,26 +142,39 @@ class JobDetails extends HTMLElement {
       });
     }
 
-    // Render images
-    const imagesContainer = $("#job-images");
-    if (imagesContainer) {
-      imagesContainer.innerHTML = "";
-      if (job.images && job.images.length > 0) {
-        const sortedImages = [...job.images].sort((a, b) => 
-          (a.display_order || 0) - (b.display_order || 0)
-        );
-        sortedImages.forEach((img, index) => {
-          const imgEl = document.createElement("img");
-          imgEl.src = img.file_url;
-          imgEl.alt = img.caption || `Job image ${index + 1}`;
-          imgEl.loading = "lazy";
-          imagesContainer.appendChild(imgEl);
+    const imgs = Array.isArray(job.images) ? [...job.images] : [];
+    imgs.sort((a,b) => (a.display_order || 0) - (b.display_order || 0));
+    this._images = imgs;
+    this._currentIndex = 0;
+    this.updateCarousel();
+  }
+
+  updateCarousel() {
+    const imgEl = this.shadowRoot.querySelector('#carousel-image');
+    const dotsEl = this.shadowRoot.querySelector('#carousel-dots');
+    const hasImages = this._images && this._images.length > 0;
+    if (imgEl) {
+      imgEl.src = hasImages ? (this._images[this._currentIndex]?.file_url || '') : '';
+      imgEl.alt = hasImages ? (this._images[this._currentIndex]?.caption || 'Job image') : 'No image';
+      imgEl.style.display = hasImages ? 'block' : 'none';
+    }
+    if (dotsEl) {
+      dotsEl.innerHTML = '';
+      if (hasImages) {
+        this._images.forEach((_, i) => {
+          const dot = document.createElement('span');
+          dot.className = 'dot' + (i === this._currentIndex ? ' active' : '');
+          dot.addEventListener('click', () => {
+            this._currentIndex = i;
+            this.updateCarousel();
+          });
+          dotsEl.appendChild(dot);
         });
       } else {
-        const noImage = document.createElement("div");
-        noImage.className = "no-images";
-        noImage.textContent = "No images available";
-        imagesContainer.appendChild(noImage);
+        const no = document.createElement('div');
+        no.className = 'no-images';
+        no.textContent = 'No images available';
+        dotsEl.appendChild(no);
       }
     }
   }
@@ -231,28 +261,14 @@ class JobDetails extends HTMLElement {
           padding: ${tokens.spacing.xl};
         }
 
-        .job-images {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: ${tokens.spacing.md};
-          margin-bottom: ${tokens.spacing.xl};
-        }
-
-        .job-images img {
-          width: 100%;
-          height: 200px;
-          object-fit: cover;
-          border-radius: ${tokens.radius.md};
-          border: 2px solid #f0f0f0;
-        }
-
-        .no-images {
-          grid-column: 1 / -1;
-          text-align: center;
-          padding: ${tokens.spacing.xl};
-          color: #666;
-          font-style: italic;
-        }
+        .carousel { position: relative; width: 100%; height: 320px; border-radius:${tokens.radius.md}; overflow:hidden; margin-bottom:${tokens.spacing.xl}; background:#eee; }
+        .carousel img { width:100%; height:100%; object-fit:cover; display:block; }
+        .nav-btn { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; }
+        #prev-btn { left:12px; }
+        #next-btn { right:12px; }
+        .carousel-dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:6px; }
+        .carousel-dots .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.6); cursor:pointer; }
+        .carousel-dots .dot.active { background:#fff; }
 
         .job-description {
           margin-bottom: ${tokens.spacing.xl};
@@ -312,7 +328,12 @@ class JobDetails extends HTMLElement {
             <button id="close-btn" class="close-btn" aria-label="Close">×</button>
           </div>
           <div class="modal-content">
-            <div class="job-images" id="job-images"></div>
+            <div class="carousel" id="carousel">
+              <img id="carousel-image" src="" alt="Job image">
+              <button class="nav-btn" id="prev-btn" aria-label="Previous">‹</button>
+              <button class="nav-btn" id="next-btn" aria-label="Next">›</button>
+              <div class="carousel-dots" id="carousel-dots"></div>
+            </div>
             <div class="job-description" id="job-description"></div>
             <div class="job-details-grid">
               <div class="detail-item">
