@@ -583,18 +583,15 @@ class JobForm extends HTMLElement {
               <label>Category <span class="required">*</span></label>
               <select name="category" required>
                 <option value="">Select Category</option>
-                <option value="Construction Worker">Construction Worker</option>
-                <option value="Karpintero">Karpintero</option>
-                <option value="Tubero">Tubero</option>
-                <option value="Elektrisyan">Elektrisyan</option>
-                <option value="Mekaniko (Sasakyan o Motor)">Mekaniko (Sasakyan o Motor)</option>
-                <option value="Kasambahay / Yaya">Kasambahay / Yaya</option>
-                <option value="Tagalinis / Housekeeper">Tagalinis / Housekeeper</option>
-                <option value="Drayber (Family Driver / Delivery Driver)">Drayber (Family Driver / Delivery Driver)</option>
-                <option value="Tindero / Tindera">Tindero / Tindera</option>
-                <option value="Tagapagturo / Tutor">Tagapagturo / Tutor</option>
-                <option value="Aricon Technician">Aricon Technician</option>
-                <option value="Others">Others</option>
+                <option value="IT & Software">IT & Software</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Sales">Sales</option>
+                <option value="Design">Design</option>
+                <option value="Finance">Finance</option>
+                <option value="HR">Human Resources</option>
+                <option value="Operations">Operations</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
