@@ -101,8 +101,14 @@ Supabase RPC functions are used across the app. Highlights:
 - Job cards and grids adapt with `minmax(240px, 1fr)` on small screens.
 - Details modals optimized for mobile, with image carousel controls.
 
+## Academic Documentation
+
+- For academic technical documentation (SDAD) required for the DBMS course, see:
+  - MD: [Software Design & Analysis Document](3_DOCUMENTATION/%23%20Software%20Design%20%26%20Analysis%20Document%20%28S.md)
+  - PDF: [SDAD (final submission)](3_DOCUMENTATION/SDAD_[GroupName].pdf)
+  - The SDAD covers normalization analysis, DBMS concepts, transactional procedures, test cases, and flowcharts.
+
 ## Notes
 
 - Ensure your database has the required RPC functions. The app assumes they exist and return expected shapes.
 - Avoid committing sensitive keys. Use client-safe keys and configure `js/core/supabase-client.js` appropriately.
-
